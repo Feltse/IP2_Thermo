@@ -371,7 +371,7 @@ class ParticleClass:
 # Simulation parameters
 dt = 0.1                                                            # tijd stap
 num_steps = 500                                                     # aantal te nemen stappen
-particle = ParticleClass(m=1.0, v=[5.0, 3.0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
+particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
 ```
 
 ```{note} dt
@@ -571,7 +571,7 @@ De tweede solution kun je van hierboven kopieren natuurlijk!
 ````
 
 ```python
-# Maken van de class met versnelling
+# Maken van de class met versnelling![download.png](attachment:2c9ea374-faa4-41b0-84bd-ef18aec4710d.png)
 class ParticleClass:
     def __init__(self, m, v, r, R):
         self.m = m                         # mass of the particle
@@ -588,12 +588,26 @@ class ParticleClass:
 
 
 ```python
+# Maken van de class met versnelling![download.png](attachment:2c9ea374-faa4-41b0-84bd-ef18aec4710d.png)
+class ParticleClass:
+    def __init__(self, m, v, r, R):
+        self.m = m                         # mass of the particle
+        self.v = np.array(v, dtype=float)  # velocity vector
+        self.r = np.array(r, dtype=float)  # position vector
+        self.R = R                         # radius of the particle
+
+    def update_position(self):
+        self.r += self.v * dt
+    
+    def update_velocity(self, a):
+        self.v[1] += a*dt
 
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
+particle = ParticleClass(m=1.0, v=[5.0, 9.0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
+a = -9.81
 # Create the figure and axis
 fig, ax = plt.subplots()
 ax.set_xlim(-10, 10)
@@ -618,6 +632,10 @@ def update(frame):
     
     dot.set_data([particle.r[0]], [particle.r[1]])
     ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10): 
+        particle.v[0] = -1*particle.v[0]
+    if (np.abs(particle.r[1]) >= 10): 
+        particle.v[1] = -1*particle.v[1]
     return dot,
 
 # Create animation
@@ -637,7 +655,7 @@ Herinner wat we in Q1 hebben gedaan bij de basics van een numerieke simulatie...
 ```
 
 ```{solution} ex-deeltjesmodel-6
-Jouw antwoord hier...
+Energie blijft behouden, de potentiële energie wordt volledig omgezet in kinetische energie en het deeltje zal door de perfecte elastische botsing met dezelfde potentiële energie omhoog komen. Het deeltje zal dus dezelfde hoogte bereiken. 
 ```
 
 Een optie om de simulatie te verbeteren is de tijdstap $\Delta t$ kleiner te maken, maar dan hebben we ook meer geduld meer nodig - het aantal berekeningen schaalt met $\frac{1}{\Delta t}$. Een tweede optie is een meer directe oplossing: We weten dat $a = \mathrm{const.}$ en daarom weten we ook de bewegingsvergelijking van het deeltje!
@@ -725,7 +743,7 @@ dt = 0.1         # time step
 num_steps = 500  # number of time steps
 particleA = ParticleClass(m=1.0, v=[0, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
-
+particleB = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)
 track_x = []
 track_y = []
 
@@ -754,6 +772,8 @@ def update(frame):
     particleA.update_velocity(a)
 
 ### YOUR CODE HERE ###
+    particleB.update_position()
+    particleB.update_velocity(a)
 
     track_x.append(particleA.r[0])
     track_y.append(particleA.r[1])
@@ -817,7 +837,9 @@ class ParticleClass:
         self.r += self.v * dt  
 
     def collide_detection(self, other):
-        ### YOUR CODE HERE ###
+        dx = self.r[0] - other.r[0]
+        dy = dx = self.r[1] - other.r[1]
+        rr = 2*self.R
         return  dx**2+dy**2 < rr**2 
 ```
 
@@ -870,7 +892,10 @@ def update(frame):
     # botsing tussen de deeltjes onderling
     if particleA.collide_detection(particleB):
         ### YOUR CODE HERE ###
-
+        particleA.v[0] = -1*particleA.v[0]
+        particleA.v[1] = -1*particleA.v[1]
+        particleB.v[0] = -1*particleB.v[0]
+        particleB.v[1] = -1*particleB.v[1]
 
     # botsing met de wand
     if particleA.r[0]**2>100: 
