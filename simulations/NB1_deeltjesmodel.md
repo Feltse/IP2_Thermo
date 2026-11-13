@@ -67,8 +67,6 @@ plt.plot(t,x_1,'r.', markersize=1, label='fietser 1')
 plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
 
 plt.show()
-
-
 ```
 
 Wat op zou kunnen vallen is dat de snelheid in een cel constant gehouden wordt ($x_i = v_i\cdot\Delta t$), terwijl de snelheid tijdens het tijdsinterval $\Delta t$ toeneemt. De oplossing is dus een benadering van de exacte oplossing, maar door deze methode (Euler explicit forward), moeten we wel voorzichtig zijn met de grootte van het tijdsinterval.
@@ -82,6 +80,41 @@ Maak het tijdsinterval $dt$ groter en vergelijk de afgelegde weg in de tien seco
 
 ```python
 %reset -f  #clears memory as we don't need it further down 
+
+# Beginwaarden
+dt = 2                #s
+t_e = 10                   #s
+N = int(t_e/dt)+1
+t = np.arange(0,t_e+dt,dt) #s
+
+# fietser 1
+x_1 = np.zeros(N)          #m     maakt array van lengte N met alleen maar waarde 0.
+v_1 = 5                    #m/s
+
+# fietser 2
+x_2 = np.zeros(N)          #m     
+v_2 = np.zeros(N)          #m/s     
+a_2 = .5                   #m/s^2     
+
+# Uitvoeren van de simulatie
+for i in range(0,N-1):
+    x_1[i+1] = x_1[i] + v_1*dt
+    
+    x_2[i+1] = x_2[i] + v_2[i]*dt
+    v_2[i+1] = v_2[i] + a_2*dt
+
+# Plotten van de gegevens.    
+plt.figure()
+
+plt.xlabel('$t$(s)')
+plt.ylabel('$x$(m)')
+
+plt.plot(t,x_1,'r.', markersize=1, label='fietser 1')
+plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
+
+plt.show()
+
+#Er zullen minder datapunten worden geplot, de afgelegde weg zou echter hetzelfde moeten blijgven aangezien dt groter wordt en bij constante snelheid dx ook groter wordt. 
 ```
 
 ## Naar een deeltjesmodel
@@ -188,7 +221,6 @@ plt.figure()
 for particle in particle_array:
     plt.plot(particle.r[0],particle.r[1],'k.')
 plt.show()
-
 ```
 
 Wat eerder op moet zijn gevallen, en wat hierboven ook weer duidelijk wordt is dat de positie een 2D vector is.
@@ -205,7 +237,6 @@ for particle, particle_object in enumerate(particle_array):
     print("Volgende positie " + str(particle_object.r))
     if particle < len(particle_array) - 1:
         print("Naar het volgende deeltje \n")
-    
 ```
 
 Let op! In bovenstaande code maken we handig gebruik van twee programmeerconcepten.
@@ -230,6 +261,20 @@ En als je wilt gaan voor een uitdaging:
 
 ```python
 ### YOUR CODE HERE ###
+particle_list = []
+
+v_array = np.random.randint(-5, 5, 10)
+
+for i in range(0, 10): 
+    particle_list.append(ParticleClass(m=1.0, v=[v_array[i], 0], r=[start_x, 0.0],R=1.0))
+
+plt.figure(figsize=(8, 6))
+
+for particle, particle_object in enumerate(particle_list): 
+    plt.plot(particle_object.r[0], particle_object.r[1], "k.")
+    particle_object.update_position(1.0)
+    plt.plot(particle_object.r[0], particle_object.r[1], "r.")
+plt.show()
 ```
 
 Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan worden en dat kost nu eenmaal tijd. Nu is het wel zo dat sommige berekeningen meer tijd kosten dan anderen. Om te kijken of een stukje code geoptimaliseerd kan worden, moeten we een timer maken. Dat kan met onderstaande code:
@@ -249,7 +294,14 @@ for i in range(N):
 eind = time.time()
 lengte = eind - start
 
-print("Dit kostte ", lengte, "seconde!")
+start_2 = time.time()
+
+new_array = np.append(array,np.random.rand(1, N))
+
+eind_2 = time.time()
+lengte_2 = eind_2 - start_2
+print("Dit kostte ", lengte, " en ", lengte_2, "seconde!")
+snelheid = lengte-lengte_2
 ```
 
 Idealiter draaien we de bovenstaande code een aantal keer zodat we een goede schatting hebben van de rekentijd.
@@ -268,11 +320,11 @@ Met de MyST extentie in jupyterlab kun je gebruik maken van [eval](https://mystm
 ```
 
 ```{solution} ex-intro-3
-De runtime is {eval}`<naam variabele>` korter.
+De runtime is {eval}`snelheid` korter.
 ```
 
 ```python
-
+print("De runtime is ", lengte-lengte_2, "seconden korter. ")
 ```
 
 ## Aan de slag met deeltjes
@@ -319,7 +371,7 @@ class ParticleClass:
 # Simulation parameters
 dt = 0.1                                                            # tijd stap
 num_steps = 500                                                     # aantal te nemen stappen
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
+particle = ParticleClass(m=1.0, v=[5.0, 3.0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
 ```
 
 ```{note} dt
@@ -433,6 +485,8 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
+    if (particle.r[0] >= 10): 
+        particle.r[0] = -10
     return dot,         
 ```
 
@@ -449,6 +503,8 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10): 
+        particle.v[0] = -1*particle.v[0]
     return dot,
 ```
 
@@ -487,6 +543,10 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
     ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10): 
+        particle.v[0] = -1*particle.v[0]
+    if (np.abs(particle.r[1]) >= 10): 
+        particle.v[1] = -1*particle.v[1]
     return dot,
 
 # Create animation
