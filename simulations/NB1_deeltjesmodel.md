@@ -67,8 +67,6 @@ plt.plot(t,x_1,'r.', markersize=1, label='fietser 1')
 plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
 
 plt.show()
-
-
 ```
 
 Wat op zou kunnen vallen is dat de snelheid in een cel constant gehouden wordt ($x_i = v_i\cdot\Delta t$), terwijl de snelheid tijdens het tijdsinterval $\Delta t$ toeneemt. De oplossing is dus een benadering van de exacte oplossing, maar door deze methode (Euler explicit forward), moeten we wel voorzichtig zijn met de grootte van het tijdsinterval.
@@ -82,6 +80,8 @@ Maak het tijdsinterval $dt$ groter en vergelijk de afgelegde weg in de tien seco
 
 ```python
 %reset -f  #clears memory as we don't need it further down 
+# Er zullen minder datapunten zijn, en de afgelegde weg zou hetzelfde moeten blijven, aangezien dt evenveel groter wordt als dat er minder datapunten zijn. Voor elke stap neemt de afgelegde weg meer toe.
+# Maar er zijn minder stappen, zodat aan het einde je bij dezelfde x-waarde uitkomt.
 ```
 
 ## Naar een deeltjesmodel
@@ -95,8 +95,8 @@ Een *class* is een blauwdruk voor het creëren van objecten (zoals deeltjes, ato
 # - een deeltje heeft een positie.
 # - een deeltje heeft een functie die, wanneer aangeroepen, de positie van dat deeltje bijwerkt.
 # Merk op dat de class zelf geen deeltje is! 
-# Een object dat tot een bepaalde class behoort, wordt een instant van die class genoemd. 
-# Je kunt meerdere instants van een class hebben.
+# Een object dat tot een bepaalde class behoort, wordt een instance van die class genoemd. 
+# Je kunt meerdere instances van een class hebben.
 
 class ParticleClass:
     def __init__(self, m, v, r, R):
@@ -230,6 +230,23 @@ En als je wilt gaan voor een uitdaging:
 
 ```python
 ### YOUR CODE HERE ###
+particle_array_2 = []
+v_array = np.random.randint(-5,5,10)
+for i in range(10):
+    particle_array_2.append(ParticleClass(m=1.0, v=[v_array[i], 0], r=[i, 0.0],R=1.0))
+
+dt = 1.0
+
+plt.figure(figsize = (8,6))
+
+for particle, particle_object in enumerate(particle_array_2):
+    plt.plot(particle_object.r[0], particle_object.r[1], 'k.')
+    particle_object.update_position(dt)
+    plt.plot(particle_object.r[0], particle_object.r[1], 'r.')
+plt.show()
+    
+
+
 ```
 
 Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan worden en dat kost nu eenmaal tijd. Nu is het wel zo dat sommige berekeningen meer tijd kosten dan anderen. Om te kijken of een stukje code geoptimaliseerd kan worden, moeten we een timer maken. Dat kan met onderstaande code:
@@ -238,18 +255,31 @@ Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan word
 import time
 import numpy as np
 
-start = time.time()
-
 array = np.array([])
+new_array = np.array([])
 N = int(1e5)
 
-for i in range(N):
-    array = np.append(array,np.random.rand(1))
+start = time.time()
+
+# for i in range(N):
+array = np.append(array,np.random.rand(1, N))
 
 eind = time.time()
-lengte = eind - start
+lengte_snel = eind - start
 
-print("Dit kostte ", lengte, "seconde!")
+print("Dit kostte ", lengte_snel, "seconde!")
+
+start = time.time()
+
+for i in range(N):
+    new_array = np.append(new_array,np.random.rand(1))
+
+eind = time.time()
+lengte_langzaam = eind - start
+
+print("Dit kostte ", lengte_langzaam, "seconde!")
+
+keer_sneller = lengte_langzaam/lengte_snel
 ```
 
 Idealiter draaien we de bovenstaande code een aantal keer zodat we een goede schatting hebben van de rekentijd.
@@ -268,12 +298,12 @@ Met de MyST extentie in jupyterlab kun je gebruik maken van [eval](https://mystm
 ```
 
 ```{solution} ex-intro-3
-De runtime is {eval}`<naam variabele>` korter.
+De runtime is {eval}`keer_sneller` keer korter.
 ```
 
-```python
 
-```
+
+
 
 ## Aan de slag met deeltjes
 Zoom je heel ver in, dan zie je deeltjes rond vliegen.
@@ -319,7 +349,7 @@ class ParticleClass:
 # Simulation parameters
 dt = 0.1                                                            # tijd stap
 num_steps = 500                                                     # aantal te nemen stappen
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
+particle = ParticleClass(m=1.0, v=[5, 3], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
 ```
 
 ```{note} dt
@@ -407,6 +437,7 @@ def init():
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
+
     return dot,
 
 # Create animation
@@ -433,6 +464,9 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
+    if (particle.r[0] >= 10):
+        particle.r[0] -= 20
+    
     return dot,         
 ```
 
@@ -449,6 +483,8 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10):
+        particle.v[0] *= -1
     return dot,
 ```
 
@@ -487,6 +523,10 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
     ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10):
+        particle.v[0] *= -1
+    if (np.abs(particle.r[1]) >= np.abs(10)):
+        particle.v[1] *= -1
     return dot,
 
 # Create animation
