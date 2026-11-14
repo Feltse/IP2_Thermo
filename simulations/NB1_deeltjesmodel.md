@@ -973,7 +973,7 @@ Wat is de beperkende factor in ons script om het aantal botsingen als functie va
 ```
 
 ```{solution} ex-deeltjes-12
-Jouw antwoord
+Bij de massaverhouding van $\frac{m_1}{m_2}$ van 100 is er sprake van 31 botsingen tussen de deeltjes. Dat komt inderdaad overeen met het getal $\pi$. De beperkende factor is dat er grotere massaverhouding veel meer frames nodig zijn om de animatie te laten zien. 
 ```
 
 
@@ -999,7 +999,7 @@ class ParticleClass:
 dt = 0.1        # time step
 num_steps = 1000  # number of time steps
 m1 = 1.0
-m2 = 100
+m2 = 50
 
 particleA = ParticleClass(m=m1, v=[0, 0], r=[-4.0, 0.0],R=0.45)  
 particleB = ParticleClass(m=m2, v=[-1, 0], r=[-2.0, 0.0],R=0.45)  
@@ -1069,7 +1069,7 @@ def update(frame):
     return dot, counter_text
 
 # Create animation
-ani = FuncAnimation(fig, update, frames=range(1000), init_func=init, blit=True, interval=70)
+ani = FuncAnimation(fig, update, frames=range(400), init_func=init, blit=True, interval=70)
 
 # For Jupyter notebook:
 from IPython.display import HTML
@@ -1082,8 +1082,9 @@ Pas de bovenstaande code aan zodat $m_1 = 1$ en $m_2 = 50$. Run de code en geef 
 
 
 ```python tags=["NB1_eindantwoord"]
-#num_botsingen = ...
+num_botsingen = 22
 ### YOUR CODE HERE ###
+#We hebben het aantal frames verdubbeld waardoor de laatste botsing van het rode deeltje ook zichtbaar was. 
 ```
 
 ```{exercise}
