@@ -999,7 +999,7 @@ class ParticleClass:
 dt = 0.1        # time step
 num_steps = 1000  # number of time steps
 m1 = 1.0
-m2 = 50
+m2 = 100
 
 particleA = ParticleClass(m=m1, v=[0, 0], r=[-4.0, 0.0],R=0.45)  
 particleB = ParticleClass(m=m2, v=[-1, 0], r=[-2.0, 0.0],R=0.45)  
