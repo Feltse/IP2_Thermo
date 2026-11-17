@@ -67,8 +67,6 @@ plt.plot(t,x_1,'r.', markersize=1, label='fietser 1')
 plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
 
 plt.show()
-
-
 ```
 
 Wat op zou kunnen vallen is dat de snelheid in een cel constant gehouden wordt ($x_i = v_i\cdot\Delta t$), terwijl de snelheid tijdens het tijdsinterval $\Delta t$ toeneemt. De oplossing is dus een benadering van de exacte oplossing, maar door deze methode (Euler explicit forward), moeten we wel voorzichtig zijn met de grootte van het tijdsinterval.
@@ -82,6 +80,8 @@ Maak het tijdsinterval $dt$ groter en vergelijk de afgelegde weg in de tien seco
 
 ```python
 %reset -f  #clears memory as we don't need it further down 
+# Er zullen minder datapunten zijn, en de afgelegde weg zou hetzelfde moeten blijven, aangezien dt evenveel groter wordt als dat er minder datapunten zijn. Voor elke stap neemt de afgelegde weg meer toe.
+# Maar er zijn minder stappen, zodat aan het einde je bij dezelfde x-waarde uitkomt.
 ```
 
 ## Naar een deeltjesmodel
@@ -95,8 +95,8 @@ Een *class* is een blauwdruk voor het creëren van objecten (zoals deeltjes, ato
 # - een deeltje heeft een positie.
 # - een deeltje heeft een functie die, wanneer aangeroepen, de positie van dat deeltje bijwerkt.
 # Merk op dat de class zelf geen deeltje is! 
-# Een object dat tot een bepaalde class behoort, wordt een instant van die class genoemd. 
-# Je kunt meerdere instants van een class hebben.
+# Een object dat tot een bepaalde class behoort, wordt een instance van die class genoemd. 
+# Je kunt meerdere instances van een class hebben.
 
 class ParticleClass:
     def __init__(self, m, v, r, R):
@@ -230,6 +230,23 @@ En als je wilt gaan voor een uitdaging:
 
 ```python
 ### YOUR CODE HERE ###
+particle_array_2 = []
+v_array = np.random.randint(-5,5,10)
+for i in range(10):
+    particle_array_2.append(ParticleClass(m=1.0, v=[v_array[i], 0], r=[i, 0.0],R=1.0))
+
+dt = 1.0
+
+plt.figure(figsize = (8,6))
+
+for particle, particle_object in enumerate(particle_array_2):
+    plt.plot(particle_object.r[0], particle_object.r[1], 'k.')
+    particle_object.update_position(dt)
+    plt.plot(particle_object.r[0], particle_object.r[1], 'r.')
+plt.show()
+    
+
+
 ```
 
 Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan worden en dat kost nu eenmaal tijd. Nu is het wel zo dat sommige berekeningen meer tijd kosten dan anderen. Om te kijken of een stukje code geoptimaliseerd kan worden, moeten we een timer maken. Dat kan met onderstaande code:
@@ -238,18 +255,31 @@ Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan word
 import time
 import numpy as np
 
-start = time.time()
-
 array = np.array([])
+new_array = np.array([])
 N = int(1e5)
 
-for i in range(N):
-    array = np.append(array,np.random.rand(1))
+start = time.time()
+
+# for i in range(N):
+array = np.append(array,np.random.rand(1, N))
 
 eind = time.time()
-lengte = eind - start
+lengte_snel = eind - start
 
-print("Dit kostte ", lengte, "seconde!")
+print("Dit kostte ", lengte_snel, "seconde!")
+
+start = time.time()
+
+for i in range(N):
+    new_array = np.append(new_array,np.random.rand(1))
+
+eind = time.time()
+lengte_langzaam = eind - start
+
+print("Dit kostte ", lengte_langzaam, "seconde!")
+
+keer_sneller = lengte_langzaam/lengte_snel
 ```
 
 Idealiter draaien we de bovenstaande code een aantal keer zodat we een goede schatting hebben van de rekentijd.
@@ -268,12 +298,12 @@ Met de MyST extentie in jupyterlab kun je gebruik maken van [eval](https://mystm
 ```
 
 ```{solution} ex-intro-3
-De runtime is {eval}`<naam variabele>` korter.
+De runtime is {eval}`keer_sneller` keer korter.
 ```
 
-```python
 
-```
+
+
 
 ## Aan de slag met deeltjes
 Zoom je heel ver in, dan zie je deeltjes rond vliegen.
@@ -319,7 +349,7 @@ class ParticleClass:
 # Simulation parameters
 dt = 0.1                                                            # tijd stap
 num_steps = 500                                                     # aantal te nemen stappen
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
+particle = ParticleClass(m=1.0, v=[5, 3], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
 ```
 
 ```{note} dt
@@ -384,7 +414,7 @@ Het is nu beter om alle code in één cel te plaatsen (hieronder gedaan voor je)
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
+particle = ParticleClass(m=1.0, v=[5.0, 3.0], r=[0.0, 0.0],R=1.0)  
 
 # Create the figure and axis
 fig, ax = plt.subplots()
@@ -407,6 +437,7 @@ def init():
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
+
     return dot,
 
 # Create animation
@@ -433,6 +464,9 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
+    if (particle.r[0] >= 10):
+        particle.r[0] -= 20
+    
     return dot,         
 ```
 
@@ -449,6 +483,8 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10):
+        particle.v[0] *= -1
     return dot,
 ```
 
@@ -487,6 +523,10 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
     ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10):
+        particle.v[0] *= -1
+    if (np.abs(particle.r[1]) >= np.abs(10)):
+        particle.v[1] *= -1
     return dot,
 
 # Create animation
@@ -528,10 +568,23 @@ class ParticleClass:
 
 
 ```python
+# Maken van de class met versnelling
+class ParticleClass:
+    def __init__(self, m, v, r, R):
+        self.m = m                         # mass of the particle
+        self.v = np.array(v, dtype=float)  # velocity vector
+        self.r = np.array(r, dtype=float)  # position vector
+        self.R = R                         # radius of the particle
 
+    def update_position(self):
+        self.r += self.v * dt
+    
+    def update_velocity(self, a):
+        self.v[1] += a*dt
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
+a = -9.81
 particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
 # Create the figure and axis
@@ -558,6 +611,10 @@ def update(frame):
     
     dot.set_data([particle.r[0]], [particle.r[1]])
     ### YOUR CODE HERE ###
+    if (np.abs(particle.r[0]) >= 10):
+        particle.v[0] *= -1
+    if (np.abs(particle.r[1]) >= np.abs(10)):
+        particle.v[1] *= -1
     return dot,
 
 # Create animation
@@ -577,7 +634,7 @@ Herinner wat we in Q1 hebben gedaan bij de basics van een numerieke simulatie...
 ```
 
 ```{solution} ex-deeltjesmodel-6
-Jouw antwoord hier...
+Er lijkt geen behoud van energie in het balletje te zijn, terwijl dit in een simulatie zonder weerstand wel zou moeten gelden.
 ```
 
 Een optie om de simulatie te verbeteren is de tijdstap $\Delta t$ kleiner te maken, maar dan hebben we ook meer geduld meer nodig - het aantal berekeningen schaalt met $\frac{1}{\Delta t}$. Een tweede optie is een meer directe oplossing: We weten dat $a = \mathrm{const.}$ en daarom weten we ook de bewegingsvergelijking van het deeltje!
@@ -665,9 +722,11 @@ dt = 0.1         # time step
 num_steps = 500  # number of time steps
 particleA = ParticleClass(m=1.0, v=[0, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
-
-track_x = []
-track_y = []
+particleB = ParticleClass(m=1.0, v=[0, 2], r=[1.0, 0.0],R=1.0)
+track_x_A = []
+track_y_A = []
+track_x_B = []
+track_y_B = []
 
 # Create the figure and axis
 fig, ax = plt.subplots()
@@ -677,8 +736,8 @@ ax.set_aspect('equal')
 ax.set_title("Particle Animation")
 ax.set_xlabel("x")
 ax.set_ylabel("y")
-track_line, = ax.plot([], [], 'r--', linewidth=1)  
-
+track_line_A, = ax.plot([], [], 'r--', linewidth=1)  
+track_line_B, = ax.plot([], [], 'b--', linewidth=1)  
 # Create the particle as a red dot
 dotA, = ax.plot([], [], 'ro', markersize=10)
 dotB, = ax.plot([], [], 'bo', markersize=10)
@@ -692,12 +751,16 @@ def init():
 def update(frame):
     particleA.update_position()
     particleA.update_velocity(a)
-
+    particleB.update_position()
+    particleB.update_velocity(a)
 ### YOUR CODE HERE ###
 
-    track_x.append(particleA.r[0])
-    track_y.append(particleA.r[1])
-    track_line.set_data(track_x, track_y)
+    track_x_A.append(particleA.r[0])
+    track_y_A.append(particleA.r[1])
+    track_line_A.set_data(track_x_A, track_y_A)
+    track_x_B.append(particleB.r[0])
+    track_y_B.append(particleB.r[1])
+    track_line_B.set_data(track_x_B, track_y_B)
     
     dotA.set_data([particleA.r[0]], [particleA.r[1]])
     dotB.set_data([particleB.r[0]], [particleB.r[1]])
@@ -758,6 +821,9 @@ class ParticleClass:
 
     def collide_detection(self, other):
         ### YOUR CODE HERE ###
+        dx = self.r[0] - other.r[0]
+        dy = self.r[1] - other.r[1]
+        rr = self.R*2
         return  dx**2+dy**2 < rr**2 
 ```
 
@@ -810,7 +876,10 @@ def update(frame):
     # botsing tussen de deeltjes onderling
     if particleA.collide_detection(particleB):
         ### YOUR CODE HERE ###
-
+        particleA.v[0] *=-1
+        particleA.v[1] *=-1
+        particleB.v[0] *=-1
+        particleB.v[1] *=-1
 
     # botsing met de wand
     if particleA.r[0]**2>100: 
@@ -914,7 +983,7 @@ class ParticleClass:
 dt = 0.1         # time step
 num_steps = 530  # number of time steps
 m1 = 1.0
-m2 = 1.0
+m2 = 50.0
 
 particleA = ParticleClass(m=m1, v=[0, 0], r=[-4.0, 0.0],R=0.45)  
 particleB = ParticleClass(m=m2, v=[-1, 0], r=[-2.0, 0.0],R=0.45)  
@@ -964,7 +1033,7 @@ def update(frame):
         particleA.v = vA_new
         particleB.v = vB_new
         ### YOUR CODE HERE ###
-
+        counter += 1
 
     # wall collision detection and response
     if particleA.r[0]**2>100: # Check if particle is outside the bounds, np.abs could be used but is slower
@@ -997,7 +1066,7 @@ Pas de bovenstaande code aan zodat $m_1 = 1$ en $m_2 = 50$. Run de code en geef 
 
 
 ```python tags=["NB1_eindantwoord"]
-#num_botsingen = ...
+num_botsingen = 11
 ### YOUR CODE HERE ###
 ```
 
