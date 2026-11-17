@@ -722,7 +722,7 @@ dt = 0.1         # time step
 num_steps = 500  # number of time steps
 particleA = ParticleClass(m=1.0, v=[0, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
-particleB = ParticleClass(m=1.0, v=[0, 2], r=[0.0, 0.0],R=1.0)
+particleB = ParticleClass(m=1.0, v=[0, 2], r=[1.0, 0.0],R=1.0)
 track_x_A = []
 track_y_A = []
 track_x_B = []
@@ -758,8 +758,8 @@ def update(frame):
     track_x_A.append(particleA.r[0])
     track_y_A.append(particleA.r[1])
     track_line_A.set_data(track_x_A, track_y_A)
-    track_x_B.append(particleA.r[0])
-    track_y_B.append(particleA.r[1])
+    track_x_B.append(particleB.r[0])
+    track_y_B.append(particleB.r[1])
     track_line_B.set_data(track_x_B, track_y_B)
     
     dotA.set_data([particleA.r[0]], [particleA.r[1]])
@@ -821,6 +821,9 @@ class ParticleClass:
 
     def collide_detection(self, other):
         ### YOUR CODE HERE ###
+        dx = self.r[0] - other.r[0]
+        dy = self.r[1] - other.r[1]
+        rr = self.R*2
         return  dx**2+dy**2 < rr**2 
 ```
 
@@ -873,7 +876,10 @@ def update(frame):
     # botsing tussen de deeltjes onderling
     if particleA.collide_detection(particleB):
         ### YOUR CODE HERE ###
-
+        particleA.v[0] *=-1
+        particleA.v[1] *=-1
+        particleB.v[0] *=-1
+        particleB.v[1] *=-1
 
     # botsing met de wand
     if particleA.r[0]**2>100: 
@@ -977,7 +983,7 @@ class ParticleClass:
 dt = 0.1         # time step
 num_steps = 530  # number of time steps
 m1 = 1.0
-m2 = 1.0
+m2 = 50.0
 
 particleA = ParticleClass(m=m1, v=[0, 0], r=[-4.0, 0.0],R=0.45)  
 particleB = ParticleClass(m=m2, v=[-1, 0], r=[-2.0, 0.0],R=0.45)  
@@ -1027,7 +1033,7 @@ def update(frame):
         particleA.v = vA_new
         particleB.v = vB_new
         ### YOUR CODE HERE ###
-
+        counter += 1
 
     # wall collision detection and response
     if particleA.r[0]**2>100: # Check if particle is outside the bounds, np.abs could be used but is slower
@@ -1060,7 +1066,7 @@ Pas de bovenstaande code aan zodat $m_1 = 1$ en $m_2 = 50$. Run de code en geef 
 
 
 ```python tags=["NB1_eindantwoord"]
-#num_botsingen = ...
+num_botsingen = 11
 ### YOUR CODE HERE ###
 ```
 
