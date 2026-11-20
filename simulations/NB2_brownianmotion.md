@@ -48,7 +48,7 @@ Als model gaan we uit van een deel van het volume van een fietsband die onder ee
 ```
 
 ```{solution} ex-recap-1
-### YOUR CODE HERE ###
+$PV = NRT$ dus $V = NRT/P = NR*293.15/1000000 = R*293.15/(6.022*10^28) = (8.314*293.15)/(6.022*10^29)$, dus de ribben zijn de derdemachtswortel van V en dat is $1.5936*10^-9$ m en het oppervlak van één deeltje is $2.53956096\cdot 10^{-18}$ m^2.
 ```
 
 De simulatie die we gaan maken bevat maar twee dimensies. We kunnen het oppervlak per deeltje in deze simulatie daarom kiezen als het zojuist berekende $V_\text{molecuul}^{2/3}$.
@@ -68,7 +68,7 @@ Ook deze heb je hierna nodig.
 ```
 
 ```{solution} ex-recap-2
-### YOUR CODE HERE ###
+$v = \sqrt((f*k_B*T)/m) = \sqrt(2*1.380649*10^-23*293.15/(0.02897/(6.022*10^23)) = 410.201946081 = 4.1*10^2$ m/s
 ```
 
 ```{exercise} Radius
@@ -77,7 +77,7 @@ In de python cell hieronder staan enkele waarden gegeven. Het aantal deeltjes $N
 ```
 
 ```{solution} ex-recap-3
-### YOUR CODE HERE ###
+
 ```
 
 ```{exercise} DT
@@ -88,11 +88,13 @@ Bekijk de waarde van `DT`. Hoe zorgt deze waaarde ervoor dat het onwaarschijnlij
 Onze simulatie modelleert dus een klein systeem zonder rekening te houden met de kracht tussen de luchtmoleculen. Je zult zien dat we toch al behoorlijk wat van de processor vragen om deze berekeningen te doen. Om een meer realistische modelsimulatie te maken is daarom een serieuze uitdaging, die veel wiskunde en programmeerervaring vraagt. Op dit ogenblik wordt dit bijvoorbeeld gevraagd bij een van de eerste opdrachten van het vak 'Computational Physics' van de master Applied Physics. 
 
 ```python tags=["NB2_init"] editable=true slideshow={"slide_type": ""}
-BOX_SIZE_0 = 10                # Hoogte en lengte startvolume
-N = 40                         # Aantal deeltjes
-V_0 = 1                        # Startsnelheid van deeltjes
-RADIUS = 0.3                   # Straal van moleculen
-DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen
+BOX_SIZE_0 = 10                # Hoogte en lengte startvolume, [nm]
+N = 40                         # Aantal deeltjes, []
+V_0 = 1                        # Startsnelheid van deeltjes, [m/s]
+RADIUS = 0.3                   # Straal van moleculen, [nm]
+DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen, [ns]
+# Als de straal toeneemt, is het niet zo erg dat dt groter wordt want bij elke dt beweegt een deeltje minder ten opzichte van zijn straal.
+#Als de V_0 groter wordt, moet de dt kleiner worden zodat je botsingen niet mist. Bij een grotere V_0 beweegt elk deeltje elke tijdstap meer (ten opzichte van zijn straal)
 ```
 
 ### Particle class
@@ -184,7 +186,7 @@ Leg uit dat d.m.v. onderstaande code de deeltjes allemaal dezelfde snelheid hebb
 
 ```{solution} ex-recap-5
 Jouw antwoord hier...
-### YOUR CODE HERE ###
+De deeltjes krijgen een willekeurige x-snelheid, die met de stelling van Pythagoras met de y-snelheid tot V_0 wordt aangevuld, zodat de totale snelheid van de deeltjes gelijk is. Ze zijn uniform verdeeld over de box omdat hun positie wordt bepaald met een np.random.uniform
 ```
 
 ```python tags=["NB2_init"] editable=true slideshow={"slide_type": ""}
@@ -209,8 +211,7 @@ Leg uit hoe er in onderstaande code wordt voorkomen dat de botsing tussen twee d
 ```
 
 ```{solution} ex-recap-6
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+De code gaat alle deeltjes af, en als het al een botsing heeft geregistreerd laat het de detectie bij een latere deeltje de particle_collision niet beïnvloeden, het neemt gewoon de waardes van de eerste botsing.
 ```
 
 ```python editable=true slideshow={"slide_type": ""} tags=["NB2_init"]
@@ -319,10 +320,11 @@ create_particles(particles)
 for i in range(100):
     take_time_step(particles)
     # voeg de som van de kinetische energie in deze stap toe aan energy_tot 
-    ### YOUR CODE HERE ###
+    energy_tot = np.append()
 
 # plot de figuur van de kinetische energie als functie van de tijd. 
 ### YOUR CODE HERE ###
+
 ```
 
 ```{exercise} 
