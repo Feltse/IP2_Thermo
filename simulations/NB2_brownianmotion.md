@@ -68,7 +68,7 @@ Ook deze heb je hierna nodig.
 ```
 
 ```{solution} ex-recap-2
-### YOUR CODE HERE ###
+
 ```
 
 ```{exercise} Radius
