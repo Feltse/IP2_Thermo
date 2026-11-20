@@ -48,7 +48,7 @@ Als model gaan we uit van een deel van het volume van een fietsband die onder ee
 ```
 
 ```{solution} ex-recap-1
-We gaan er vanuit dat de algemene gaswet geldt. Er ge
+We gaan er vanuit dat de algemene gaswet geldt. Er geldt $P*V_{molecuul} = N*R*T$ dus $V_{molecuul} = 8.314*293.15/(1.0e6*6.022e23) = 1.5936e-9 m = 1.6 nm$
 ```
 
 De simulatie die we gaan maken bevat maar twee dimensies. We kunnen het oppervlak per deeltje in deze simulatie daarom kiezen als het zojuist berekende $V_\text{molecuul}^{2/3}$.
@@ -68,7 +68,7 @@ Ook deze heb je hierna nodig.
 ```
 
 ```{solution} ex-recap-2
-
+Er geldt de volgende formule $v^2 = 2*k_B*T/m = v^2 = 2*1.38e-23*293.15*6.022e23/(28.97e-3) = v = 410.2019 = 4.1e2 m/s$
 ```
 
 ```{exercise} Radius
@@ -77,7 +77,6 @@ In de python cell hieronder staan enkele waarden gegeven. Het aantal deeltjes $N
 ```
 
 ```{solution} ex-recap-3
-### YOUR CODE HERE ###
 ```
 
 ```{exercise} DT
@@ -88,11 +87,12 @@ Bekijk de waarde van `DT`. Hoe zorgt deze waaarde ervoor dat het onwaarschijnlij
 Onze simulatie modelleert dus een klein systeem zonder rekening te houden met de kracht tussen de luchtmoleculen. Je zult zien dat we toch al behoorlijk wat van de processor vragen om deze berekeningen te doen. Om een meer realistische modelsimulatie te maken is daarom een serieuze uitdaging, die veel wiskunde en programmeerervaring vraagt. Op dit ogenblik wordt dit bijvoorbeeld gevraagd bij een van de eerste opdrachten van het vak 'Computational Physics' van de master Applied Physics. 
 
 ```python tags=["NB2_init"] editable=true slideshow={"slide_type": ""}
-BOX_SIZE_0 = 10                # Hoogte en lengte startvolume
-N = 40                         # Aantal deeltjes
-V_0 = 1                        # Startsnelheid van deeltjes
-RADIUS = 0.3                   # Straal van moleculen
-DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen
+BOX_SIZE_0 = 10                # Hoogte en lengte startvolume (nm)
+N = 40                         # Aantal deeltjes ()
+V_0 = 1                        # Startsnelheid van deeltjes (m/s)
+RADIUS = 0.3                   # Straal van moleculen (nm)
+DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen (ns)
+#DT moet groter als de straal van het deeltje ook groter wordt, zo is het deeltje in zijn beweging beter te volgen. Als V_0 groter wordt moet de tijdsstap DT juist kleiner worden zodat de beweging beter te volgen is. 
 ```
 
 ### Particle class
@@ -183,8 +183,7 @@ Leg uit dat d.m.v. onderstaande code de deeltjes allemaal dezelfde snelheid hebb
 ```
 
 ```{solution} ex-recap-5
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+Er wordt een willekeurige snelheid in de x-richting gekozen, waarna op basis van deze snelheid de grootte van de snelheid in de y-richting bepaald wordt en deze een willekeurige richting krijgt. De grootte van de snelheid blijft hierdoor voor elk deeltje hetzelfde. 
 ```
 
 ```python tags=["NB2_init"] editable=true slideshow={"slide_type": ""}
@@ -209,8 +208,7 @@ Leg uit hoe er in onderstaande code wordt voorkomen dat de botsing tussen twee d
 ```
 
 ```{solution} ex-recap-6
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+Door bij de tweede for loop alleen voor de deeltjes vanaf i+1 te bekijken of de deeltjes botsen, zullen er geen twee botsingen meegenomen worden in de berekening. 
 ```
 
 ```python editable=true slideshow={"slide_type": ""} tags=["NB2_init"]
