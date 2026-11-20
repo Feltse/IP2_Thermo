@@ -128,8 +128,8 @@ Een *class* is een blauwdruk voor het creëren van objecten (zoals deeltjes, ato
 # - een deeltje heeft een positie.
 # - een deeltje heeft een functie die, wanneer aangeroepen, de positie van dat deeltje bijwerkt.
 # Merk op dat de class zelf geen deeltje is! 
-# Een object dat tot een bepaalde class behoort, wordt een instant van die class genoemd. 
-# Je kunt meerdere instants van een class hebben.
+# Een object dat tot een bepaalde class behoort, wordt een instance van die class genoemd. 
+# Je kunt meerdere instances van een class hebben.
 
 class ParticleClass:
     def __init__(self, m, v, r, R):
@@ -283,16 +283,29 @@ Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan word
 import time
 import numpy as np
 
-start = time.time()
-
 array = np.array([])
+new_array = np.array([])
 N = int(1e5)
 
-for i in range(N):
-    array = np.append(array,np.random.rand(1))
+start = time.time()
+
+# for i in range(N):
+array = np.append(array,np.random.rand(1, N))
 
 eind = time.time()
-lengte = eind - start
+lengte_snel = eind - start
+
+print("Dit kostte ", lengte_snel, "seconde!")
+
+start = time.time()
+
+for i in range(N):
+    new_array = np.append(new_array,np.random.rand(1))
+
+eind = time.time()
+lengte_langzaam = eind - start
+
+print("Dit kostte ", lengte_langzaam, "seconde!")
 
 start_2 = time.time()
 
@@ -371,7 +384,7 @@ class ParticleClass:
 # Simulation parameters
 dt = 0.1                                                            # tijd stap
 num_steps = 500                                                     # aantal te nemen stappen
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
+particle = ParticleClass(m=1.0, v=[5, 3], r=[0.0, 0.0], R=1.0)    # het maken van ons deeltje
 ```
 
 ```{note} dt
@@ -436,7 +449,7 @@ Het is nu beter om alle code in één cel te plaatsen (hieronder gedaan voor je)
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
+particle = ParticleClass(m=1.0, v=[5.0, 3.0], r=[0.0, 0.0],R=1.0)  
 
 # Create the figure and axis
 fig, ax = plt.subplots()
@@ -459,6 +472,7 @@ def init():
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
+
     return dot,
 
 # Create animation
@@ -485,8 +499,9 @@ def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
 ### YOUR CODE HERE ###
-    if (particle.r[0] >= 10): 
-        particle.r[0] = -10
+    if (particle.r[0] >= 10):
+        particle.r[0] -= 20
+    
     return dot,         
 ```
 
@@ -602,6 +617,11 @@ class ParticleClass:
     def update_velocity(self, a):
         self.v[1] += a*dt
 
+    def update_position(self):
+        self.r += self.v * dt
+    
+    def update_velocity(self, a):
+        self.v[1] += a*dt
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
@@ -755,8 +775,8 @@ ax.set_aspect('equal')
 ax.set_title("Particle Animation")
 ax.set_xlabel("x")
 ax.set_ylabel("y")
-track_line, = ax.plot([], [], 'r--', linewidth=1)  
-
+track_line_A, = ax.plot([], [], 'r--', linewidth=1)  
+track_line_B, = ax.plot([], [], 'b--', linewidth=1)  
 # Create the particle as a red dot
 dotA, = ax.plot([], [], 'ro', markersize=10)
 dotB, = ax.plot([], [], 'bo', markersize=10)
@@ -770,14 +790,18 @@ def init():
 def update(frame):
     particleA.update_position()
     particleA.update_velocity(a)
-
+    particleB.update_position()
+    particleB.update_velocity(a)
 ### YOUR CODE HERE ###
     particleB.update_position()
     particleB.update_velocity(a)
 
-    track_x.append(particleA.r[0])
-    track_y.append(particleA.r[1])
-    track_line.set_data(track_x, track_y)
+    track_x_A.append(particleA.r[0])
+    track_y_A.append(particleA.r[1])
+    track_line_A.set_data(track_x_A, track_y_A)
+    track_x_B.append(particleB.r[0])
+    track_y_B.append(particleB.r[1])
+    track_line_B.set_data(track_x_B, track_y_B)
     
     dotA.set_data([particleA.r[0]], [particleA.r[1]])
     dotB.set_data([particleB.r[0]], [particleB.r[1]])
