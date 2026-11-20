@@ -1068,6 +1068,7 @@ Pas de bovenstaande code aan zodat $m_1 = 1$ en $m_2 = 50$. Run de code en geef 
 ```python tags=["NB1_eindantwoord"]
 num_botsingen = 11
 ### YOUR CODE HERE ###
+
 ```
 
 ```{exercise}
