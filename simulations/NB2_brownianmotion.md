@@ -316,11 +316,18 @@ energy_tot = []
 create_particles(particles)
 for i in range(100):
     take_time_step(particles)
-    # voeg de som van de kinetische energie in deze stap toe aan energy_tot 
-    ### YOUR CODE HERE ###
+    # voeg de som van de kinetische energie in deze stap toe aan energy_tot
+    count = 0
+    for p in particles: 
+        count += p.kin_energy
+    energy_tot = np.append(count, energy_tot)
 
 # plot de figuur van de kinetische energie als functie van de tijd. 
-### YOUR CODE HERE ###
+time = np.linspace(0, 100*DT, 100)
+plt.figure(figsize=(8, 6))
+plt.plot(time, energy_tot, "k.")
+# plt.ylim(20.00 - 1.0e-14, 20.00 + 1.0e-14)
+plt.show()
 ```
 
 ```{exercise} 
@@ -329,8 +336,7 @@ Als je heel nauwkeurig naar de waarde voor de totale kinetische energie kijkt, d
 ```
 
 ```{solution} ex-recap-8
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+Dit gebeurt op de energieschaal in de orde van $E_k = 1.0\cdot 10^{-14}$ J. 
 ```
 
 
