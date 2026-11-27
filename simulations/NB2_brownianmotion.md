@@ -241,8 +241,9 @@ def take_time_step(particles):
     for p in particles:
         p.update_position()
         
-    handle_collisions(particles)
+    collisions = handle_collisions(particles)
     handle_walls(particles)  
+    return collisions
 
 ```
 
@@ -326,7 +327,7 @@ for i in range(100):
 time = np.linspace(0, 100*DT, 100)
 plt.figure(figsize=(8, 6))
 plt.plot(time, energy_tot, "k.")
-# plt.ylim(20.00 - 1.0e-14, 20.00 + 1.0e-14)
+plt.ylim(20.00 - 1.0e-14, 20.00 + 1.0e-14)
 plt.show()
 ```
 
@@ -362,12 +363,52 @@ def handle_collisions(particles):
 
 Leg uit wat deze code precies doet. 
 
+De code gaat door middel van een eerste for loop voor elk deeltje bekijken of deze in aanraking komt (collide_detection()) met een ander deeltje uit de lijst van alle deeltjes. Hierdoor wordt ook het deeltje met zichzelf vergeleken, waardoor eerst wordt gekeken of p1 en p2 hetzelfde deeltje zijn, dan wordt de collide detection overgeslagen door continue. Vervolgens wordt een volgend deeltje vergeleken met alle deeltjes op dezelfde manier. Ook slaat de code dubbelingen over door deeltjes die worden vergeleken met collide_detection() toe te voegen aan de ignore list. 
+
 Maak een script waarbij twee deeltjes met dezelfde (absolute) snelheid op een derde deeltje afbewegen en tegelijk zouden botsen.
 - Laat zien dat 'slechts' twee deeltjes een interactie met elkaar aan gaan.
 - Leg uit waarom dat een acceptabele benadering is wanneer je veel deeltjes botsingen per tijdseenheid hebt.
 - Voor wie een uitdaging wil: maak een grafiek met het aantal botsingen per tijdseenheid. Dit om bovenstaande benadering verder te verantwoorden.
 ```
 
+```python
+def handle_collisions(particles):
+    ignore_list = []
+    for i, p1 in enumerate(particles):
+        if p1 in ignore_list:
+            continue
+        for j, p2 in enumerate(particles):
+            if p1 is p2:
+                continue                
+            if collide_detection(particles[i], particles[j]):
+                particle_collision(particles[i], particles[j])
+                ignore_list.append(p2)
+
+particles2 = []
+particles2.append(ParticleClass(m=1.0, v=[1.0, 0], r=[-1.0, 0], R=RADIUS))
+particles2.append(ParticleClass(m=1.0, v=[-0.5, -0.5*np.sqrt(3)], r=[0.5, 0.5*np.sqrt(3)], R=RADIUS))
+particles2.append(ParticleClass(m=1.0, v=[-0.5, 0.5*np.sqrt(3)], r=[0.5, -0.5*np.sqrt(3)], R=RADIUS))
+
+fig, ax = plt.subplots()
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_xlim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_ylim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_aspect('equal')
+dot, = ax.plot([], [], 'ro', ms=13);
+
+def init():
+    dot.set_data([], [])
+    return dot,
+
+def update(frame):
+    take_time_step(particles2)
+    dot.set_data([p.r[0] for p in particles2], [p.r[1] for p in particles2])
+    return dot,
+
+ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True, interval=50)
+HTML(ani.to_jshtml())
+```
 
 ````{tip} Nog sneller
 Er is een manier om je script nog sneller te maken. 
@@ -512,7 +553,8 @@ for i in range(N-1):
     pos = Box_length_0*np.random.uniform(-1,1,2)
     particles.append(ParticleClass(m=1.0, v=[vx, vy], r = pos, R=.5,c='blue')) 
 
-particles.append(ParticleClass(m=20.0, v=[0, 0], r = [0, 0], R=.5,c='red')) 
+#Toevoegen even groot, zwaar deeltje in het midden van de doos, zonder een snelheid. Ook krijgt deze een rode kleur
+particles.append(ParticleClass(m=20.0, v=[0, 0], r = [0, 0], R=.5,c='red'))  
 
 ```
 
@@ -524,7 +566,7 @@ Voeg voor deze regel goede metadata toe.
 ```
 
 ```{solution} ex-brownian-1
-### YOUR CODE HERE ###
+Zie de laatste regel van bovenstaande code. 
 ```
 
 
@@ -547,9 +589,9 @@ plt.ylim(-Box_length_0,Box_length_0)
 
 for particle, particle_object in enumerate(particles):
     plt.plot(particle_object.r[0],particle_object.r[1],color=particle_object.c,marker='.')
-    # plt.arrow(particle_object.r[0],particle_object.r[1], 
-    #           particle_object.v[0],particle_object.v[1], 
-    #           head_width=0.05, head_length=0.1, color='red')
+    plt.arrow(particle_object.r[0],particle_object.r[1], 
+              particle_object.v[0],particle_object.v[1], 
+              head_width=0.05, head_length=0.1, color='red')
 plt.show()
 
 ```
@@ -563,7 +605,7 @@ Hoe wordt er voor gezorgd dat de snelheid van elk deeltje gelijk is?
 ```
 
 ```{solution} ex-brownian-2
-### YOUR CODE HERE ###
+Deze code voegt pijlen toe aan elk deeltje waardoor de grootte en richting van de snelheid van de deeltjes zichtbaar worden. De snelheid van elk deeltje is gelijk doordat bij het aanmaken van de deeltjes de y-component van de snelheid wordt gekozen op basis van een willekeurige x-component van de snelheid. Door middel van de stelling van Pythagoras wordt de grootte van de snelheid altijd v_0. De pijlen hebben ook dezelfde grootte. 
 ```
 
 We gaan nu de functies van de simulatie weer aanroepen:
@@ -593,14 +635,15 @@ def particle_collision(p1: ParticleClass, p2: ParticleClass):
     p2.v += 2 * m1 / (m1 + m2) * dot_product / distance_squared * delta_r
 
 def handle_collisions(particles):
-    ### YOUR CODE HERE ###
+    counter = 0
     """ alle onderlinge botsingen afhandelen voor deeltjes in lijst """
     num_particles = len(particles)
     for i in range(num_particles):
         for j in range(i+1, num_particles):
             if collide_detection(particles[i], particles[j]):
                 particle_collision(particles[i], particles[j])
-                ### YOUR CODE HERE ###
+                counter += 1
+    return counter
 
 ```
 
@@ -683,7 +726,7 @@ def update(frame):
         p.update_position()
         p.boxcollision()
 
-    handle_collisions(particles)
+    counter = handle_collisions(particles)
 
     botsingen.append(counter)
 
@@ -732,7 +775,7 @@ ani.save("deeltjes.gif", writer="pillow", fps=20)
 ```
 
 ```{solution} ex-brownian-3
-### YOUR CODE HERE ###
+Het lichte deeltje beweegt veel meer en legt een langer pad af met een hogere snelheid, het zware deeltje heeft een kortere weg afgelegd in dezelfde tijd en beweegt dus langzamer. 
 ```
 
 
@@ -746,7 +789,14 @@ Plot hieronder het aantal botsingen als functie van de tijd.
 ```
 
 ```python
-### YOUR CODE HERE ###
+frame_array = np.linspace(0, 800, 800)
+plt.figure(figsize=[8, 6])
+plt.plot(frame_array, np.cumsum(botsingen), "k.", ms=1)
+plt.xlim(0, 800)
+plt.ylim(0, np.max(np.cumsum(botsingen)))
+plt.xlabel("Tijdsstap (ns)")
+plt.ylabel("Aantal botsingen")
+plt.show()
 ```
 
 ```{warning} 🌶 Let op!
@@ -772,8 +822,11 @@ Maar voor een histogram hebben we veel deeltjes nodig.
 
 
 ```python tags=["NB2_brownian_distance_histogram"] editable=true slideshow={"slide_type": ""}
-### YOUR CODE HERE ###
-
+particles3 = []
+N = 361
+Box_size_0 = 10
+Box_length_0 = Box_size_0/2
+Box_length = Box_length_0     # De grootte van de box kan wijzigen!
 ```
 
 En nu we toch bezig zijn met twee verschillende deeltjes.... 
