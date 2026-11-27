@@ -221,9 +221,18 @@ Schrijf een functie die de temperatuur van het gas in onze simulatie bepaalt:
 ```
 
 ```python tags=["NB3_tempfun"]
+from scipy.constants import k
+
 def temperature(particles) -> float:
-    temp = 0.0 
-    ### YOUR CODE HERE ###
+    temp = 0.0
+    f = 2
+    m = particles[0].m*1.660e-27
+    v_sum = 0
+    
+    for p in particles: 
+        v_sum += p.v[0]**2 + p.v[1]**2
+    v_avg = v_sum/len(particles)
+    temp = m*v_avg/(f*k)
     return temp
 ```
 
@@ -246,13 +255,13 @@ create_particles(particles)
 for i in range(100):
     take_time_step(particles)
     # vastleggen van temperatuur per tijdstap
-    ### YOUR CODE HERE ###
+    temperatures[i] = temperature(particles)
 
 plt.figure()
-plt.xlabel('Time')
-plt.ylabel('Temperature')
+plt.xlabel("Time (ns)")
+plt.ylabel("Temperatuur (K)")
 # plotten van tijd tegen temperatuur
-### YOUR CODE HERE ###
+plt.plot(times, temperatures, "k.")
 plt.show()
 ```
 
@@ -347,7 +356,11 @@ particles = []
 pressures = np.zeros(100, dtype=float)
 times = np.linspace(1, 100, 100)
 
-### YOUR CODE HERE ###
+create_particles(particles)
+for i in range(100):
+    take_time_step(particles)
+    # vastleggen van druk per tijdstap
+    pressures[i] = pressure
 
 plt.figure()
 plt.xlabel('Time [step]')
@@ -376,8 +389,25 @@ Zet je initiële waarden weer terug.
 <!-- #endregion -->
 
 ```python tags=[]
-### YOUR CODE HERE ###
+particles2 = []
+pressures2 = np.zeros(100, dtype=float)
+times = np.linspace(1, 100, 100)
+N = 40
+BOX_SIZE_0 = 10
 
+create_particles(particles2)
+for i in range(100):
+    take_time_step(particles2)
+    # vastleggen van druk per tijdstap
+    pressures[i] = pressure
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
 ```
 
 Een goedkoper alternatief bestaat uit het middelen van de druk over de tijd.
@@ -425,8 +455,23 @@ times = np.linspace(1, N_steps, N_steps)
 
 create_particles(particles)
 
-### YOUR CODE HERE ###
+particles = []
+pressures = np.zeros(100, dtype=float)
+times = np.linspace(1, 100, 100)
 
+create_particles(particles)
+for i in range(100):
+    take_time_step(particles)
+    # vastleggen van druk per tijdstap
+    pressures[i] = pressure
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
 ```
 
 Met de middeling kun je beter zien wat de gemiddelde waarde voor de druk in dit systeem is. Als dit voor jouw simulatie lastig is kan je de factor `alpha` aanpassen in de functie 'handle_walls`, zodat je over een langere periode het gemiddelde neemt. Hou daarbij wel rekening met de eis in [bovenstaande formule](int_norm)
@@ -437,7 +482,7 @@ We kunnen de gevonden druk nu wel uitdrukken in SI-eenheden met behulp van de vo
 ```
 
 ```{solution} ex-druktemp-7
-### YOUR CODE HERE ###
+Het aantal deeltjes is zeer weinig en de snelheden van de deeltjes zijn te laag waardoor de temperatuur van de fietsband te laag is. De snelheid is nu 1.0 m/s terwijl dat in werkelijkheid ongeveer 400 m/s is. Volgens de formule $P\cdot V = n\cdot R\cdot T$ wordt de druk dan ook veel te klein. 
 ```
 
 
@@ -449,7 +494,9 @@ Leg op basis van de vormen die je ziet en de bijbehorende wiskunde uit dat dit e
 ```
 
 ```{solution} ex-druktemp-8
-### YOUR CODE HERE ###
+Door de druk van alle deeltjes op te tellen zal de som een exponentiële term van $\alpha$ bevatten. De som wordt een meetkundige reeks die convergeert naar onderstaande waarde. 
+
+$\sum_{i=0}^{\infty}(\alpha^i) =  \frac{1}{1-\alpha}$
 ```
 
 
